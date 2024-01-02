@@ -13,7 +13,10 @@ import { MetricExporter } from '@google-cloud/opentelemetry-cloud-monitoring-exp
 import { isProduction } from './app'
 import { W3CTraceContextPropagator } from '@opentelemetry/core'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
-import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
+import {
+  ExpressInstrumentation,
+  ExpressLayerType,
+} from '@opentelemetry/instrumentation-express'
 import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 
@@ -35,7 +38,12 @@ export const openTelemetrySDK = new NodeSDK({
   }),
   instrumentations: [
     new HttpInstrumentation(),
-    new ExpressInstrumentation(),
+    new ExpressInstrumentation({
+      ignoreLayersType: [
+        ExpressLayerType.MIDDLEWARE,
+        ExpressLayerType.REQUEST_HANDLER,
+      ],
+    }),
     new WinstonInstrumentation(),
   ],
   textMapPropagator: new W3CTraceContextPropagator(),
