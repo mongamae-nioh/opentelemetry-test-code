@@ -3,6 +3,9 @@ import { NodeSDK } from '@opentelemetry/sdk-node'
 import {
   PeriodicExportingMetricReader,
   ConsoleMetricExporter,
+  View,
+  Aggregation,
+  InstrumentType,
 } from '@opentelemetry/sdk-metrics'
 import { TraceExporter } from '@google-cloud/opentelemetry-cloud-trace-exporter'
 import {
@@ -34,8 +37,16 @@ export const openTelemetrySDK = new NodeSDK({
   traceExporter,
   spanProcessor,
   metricReader: new PeriodicExportingMetricReader({
-    exporter: exporter,
+    exportIntervalMillis: 10_000,
+    exporter: exporter
   }),
+  views: [
+    new View({
+      aggregation: Aggregation.ExponentialHistogram(),
+      instrumentType: InstrumentType.HISTOGRAM,
+    }),
+  ],
+  // resource: new GcpDetectorSync().detect(),
   instrumentations: [
     new HttpInstrumentation(),
     new ExpressInstrumentation({
